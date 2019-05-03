@@ -59,8 +59,8 @@ function getPullRequestComments(pr) {
       user: comment.user.login
     }));
 
-    pr.positiveComments = emoji.countPositiveComments(comments.data);
-    pr.negativeComments = emoji.countNegativeComments(comments.data);
+    // pr.positiveComments = emoji.countPositiveComments(comments.data);
+    // pr.negativeComments = emoji.countNegativeComments(comments.data);
 
     delete pr.comments_url;
   });
@@ -76,8 +76,8 @@ function getPullRequestReactions(pr) {
       content: reaction.content
     }));
 
-    pr.positiveComments += emoji.countPositiveReactions(reactions.data);
-    pr.negativeComments += emoji.countNegativeReactions(reactions.data);
+    // pr.positiveComments += emoji.countPositiveReactions(reactions.data);
+    // pr.negativeComments += emoji.countNegativeReactions(reactions.data);
   });
 }
 
@@ -97,8 +97,9 @@ function getPullRequestReviews(pr) {
   const config = configManager.getConfig();
   return apiCall(`${config.apiBaseUrl}/repos/${pr.repo}/pulls/${pr.number}/reviews`).then(reviewData => {
     if (reviewData.data.length) {
-      pr.positiveComments += reviews.countReviews(reviewData.data, 'APPROVED')
-      pr.negativeComments += reviews.countReviews(reviewData.data, 'CHANGES_REQUESTED')
+      pr.positiveComments = reviews.countReviews(pr, reviewData.data, 'APPROVED')
+      pr.negativeComments = reviews.countReviews(pr, reviewData.data, 'CHANGES_REQUESTED')
+      pr.reviewers = reviews.countReviewrs(pr, reviewData.data)
     }
   });
 }
@@ -144,7 +145,7 @@ exports.loadPullRequests = function loadPullRequests() {
           if (config.mergeRule.neverRegexp && configManager.getNeverMergeRegexp().test(pr.title)) {
             pr.unmergeable = true;
           } else if (pr.positiveComments >= config.mergeRule.positive &&
-            pr.negativeComments <= config.mergeRule.negative) {
+            pr.reviewers.count == pr.positiveComments.count) {
             pr.mergeable = true;
           } else if (prIsStale(pr)) {
             pr.stale = true;

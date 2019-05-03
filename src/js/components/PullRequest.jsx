@@ -7,6 +7,7 @@ import '../../images/git-pull-request.svg';
 import UserPhoto from './UserPhoto';
 import { Comments } from './Comments';
 import { Status } from './Status';
+import { Reviewer } from './Reviewer';
 
 const CLASS_BASE = 'pull-request';
 const CLASS_UNMERGEABLE = `${CLASS_BASE} ${CLASS_BASE}--unmergeable`;
@@ -65,6 +66,9 @@ export default class PullRequest extends React.Component {
           </div>
           <div className="pull-request-created" title={this.formatTime('Created', pr.created)}>
             Opened by {pr.user.username} {this.formatRelativeTime(pr.created)}
+          </div>
+          <div className="pull-request-reviewed" title={this.formatTime('Created', pr.created)}>
+            Reviewed by {pr.reviewers.map(reviewer => <Reviewer reviewer={reviewer} />)}
           </div>
         </div>
         <div
